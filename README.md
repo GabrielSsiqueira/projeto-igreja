@@ -1,1 +1,1 @@
-projeto web para igreja. em desenvolvimento.
+projeto web para igreja, em desenvolvimento.
