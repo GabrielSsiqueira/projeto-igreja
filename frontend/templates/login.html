@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('static', filename='login.css')}}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css">
+  <title>Tela de Login</title>
+
+</head>
+<body>
+
+  <div class="esquerda">
+  </div>
+
+  <div class="direita">
+    <form class="form-login" onsubmit="checkCredentials(event)">
+        <div class="mb-3">
+            <h2>LOGIN DE ACESSO</h2>
+          
+              <div id="cnpjLogin" style="display:none;">
+                <label for="cnpj">CNPJ:</label>
+                <input type="text" id="cnpj" name="cnpj">
+             </div>
+          
+              <div id="emailLogin" class="mb-3">
+                  <label for="email" class="bi bi-person"> Login:</label>
+                  <input type="text" id="email" class="form-control" name="email" placeholder="digite seu email...">
+              <div>
+
+                  <label>
+                    <input type="radio" name="loginType" value="cnpj" onclick="showLoginOption()"> CNPJ
+                  </label>
+
+                  <label>
+                    <input type="radio" name="loginType" value="email" onclick="showLoginOption()">E-mail
+                  </label>
+                </div>
+
+                <label for="password" class="bi bi-eye"> Senha:</label>
+                <input type="password" id="password" class="form-control" name="password" placeholder="digite sua senha...">
+              </div>  
+
+              <div class="btn-group">
+                 <button type="submit" class="btn-success">Entrar</button>
+              </div>
+              <div class="btn-group">
+                  <button type="button" class="btn-secondary" onclick="cancelarLogin()">Cancelar</button>
+              </div>
+    </form>
+  </div>
+</body>
+
+<script>
+  function showLoginOption() {
+  var cnpjLogin = document.getElementById("cnpjLogin");
+  var emailLogin = document.getElementById("emailLogin");
+
+  var cnpjRadio = document.querySelector('input[name="loginType"][value="cnpj"]');
+  
+  if (cnpjRadio.checked) {
+    cnpjLogin.style.display = "block";
+    emailLogin.style.display = "none";
+  } else {
+    cnpjLogin.style.display = "none";
+    emailLogin.style.display = "block";
+  }
+}
+
+function checkCredentials(event) {
+  event.preventDefault();
+
+  var emailInput = document.getElementById("email").value;
+  var passwordInput = document.getElementById("password").value;
+  var cnpjInput = document.getElementById("cnpj").value;
+
+  if ((emailInput === "admin" && passwordInput === "123") || (cnpjInput === "3030123")) {
+    alert('sucesso!')
+    window.location.href ="/painel";
+  } else {
+    alert('Credenciais inválidas!');
+  }
+}
+ 
+
+function cancelarLogin(){
+alert('redirecionando para tela de email.')
+
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("cnpj").value = "";
+
+  // Desmarcar os botões de rádio
+  document.querySelector('input[name="loginType"][value="cnpj"]').checked = false;
+  document.querySelector('input[name="loginType"][value="email"]').checked = true;
+
+  // Ocultar o campo CPF e mostrar o campo de e-mail
+  document.getElementById("cnpjLogin").style.display = "none";
+  document.getElementById("emailLogin").style.display = "block";
+
+
+}
+
+</script>
+</html>

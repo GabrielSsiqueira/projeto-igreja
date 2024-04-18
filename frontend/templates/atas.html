@@ -1,0 +1,236 @@
+{% extends 'base_adm.html' %}
+
+{% block title %}
+Atas
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block conteudo %}
+
+<h2>Cadastrar Atas</h2>
+<form method="POST" enctype="multipart/form-data" onsubmit="event.preventDefault(); enviarFormulario();">
+
+    <div class="mb-3">
+        <label for="numero" class="form-label">Número:</label>
+        <input type="text" id="numero" class="form-control" name="numero" required>
+        <br>
+        <label for="idade">Tipo:</label>
+        <input type="text" id="tipo" class="form-control" name="tipo" required>
+        <br>
+        <label for="presidente_secao">Presidente da Seção:</label>
+        <input type="text" id="presidente_secao" class="form-control" name="presidente_secao" required>
+        <br>
+        <label for="data">Data:</label>
+        <input type="datetime" id="data" class="form-control" name="data" required>
+        <br>
+        <label for="membros_presentes">Membros Presentes:</label>
+        <input type="text" id="membros_presentes" class="form-control" name="membros_presentes" required>
+        <br>
+        <label for="texto">Texto:</label>
+        <textarea id="texto" name="texto" rows="4" cols="50" required></textarea>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary" onclick="enviarFormulario()">Cadastrar</button>
+</form>
+
+<div id="alertas">
+    <!-- Espaço para exibir os alertas -->
+</div>
+
+<script>
+    carregarDados();
+
+    function carregarDados() {
+        fetch('http://127.0.0.1:5000/atas', {
+                method: 'GET',
+                headers: {
+                    'Content': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+            })
+            .catch(error => {
+                console.error('Erro ao enviar a requisição.', error);
+                mostrarAlerta('danger', 'Erro ao se conectar ao servidor. Por favor, tente novamente mais tarde.')
+            });
+    }
+
+    function enviarFormulario() {
+        var numero = document.getElementById('numero').value;
+        var tipo = document.getElementById('tipo').value;
+        var presidente_secao = document.getElementById('presidente_secao').value;
+        var data = document.getElementById('data').value;
+        var membros_presentes = document.getElementById('membros_presentes').value;
+        var texto = document.getElementById('texto').value; 
+
+        var dadosAtas = {
+           numero: numero,
+           tipo: tipo,
+           presidente_secao: presidente_secao,
+           data: data,
+           membros_presentes: membros_presentes,
+           texto: texto
+        };
+
+        fetch('http://127.0.0.1:5000/atas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosAtas)
+            })
+            .then(response => {
+                if (response.status === 201) {
+                    mostrarAlerta('success', 'Ata cadastrada com sucesso.');
+                } else {
+                    mostrarAlerta('danger', 'Erro ao cadastrar Ata. Por favor, tente novamente.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                mostrarAlerta('danger', 'Erro ao se conectar com servidor. Por favor, tente novamente mais tarde.');
+            });
+
+            window.location.reload()
+        
+    
+    }
+
+    function mostrarAlerta(tipo, mensagem) {
+        var alerta = document.createElement('div');
+        alerta.className = 'alert alert-' + tipo;
+        alerta.role = 'alert';
+        alerta.innerText = mensagem;
+
+        document.getElementById('alertas').appendChild(alerta);
+
+        setTimeout(function () {
+            alerta.remove();
+        }, 5000);
+
+    }
+
+
+    function removerAtas(idAtas) {
+        fetch('http://127.0.0.1:5000/atas/' + idAtas, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        var linhaParaApagar = document.getElementById("linha" + idAtas);
+        var tabela = linhaParaApagar.parentNode;
+        tabela.removeChild(linhaParaApagar);
+
+    }
+
+    function editarAtas(idAtas) {
+        var numero = document.getElementById('numero').value;
+        var tipo = document.getElementById('tipo').value;
+        var presidente_secao = document.getElementById('presidente_secao').value;
+        var data = document.getElementById('data').value;
+        var membros_presentes = document.getElementById('membros_presentes').value;
+        var texto = document.getElementById('texto').value;
+
+        var novosDados = {
+           numero: numero,
+           tipo: tipo,
+           presidente_secao: presidente_secao,
+           data: data,
+           membros_presentes:membros_presentes,
+           texto: texto
+        };
+       
+
+        fetch('http://127.0.0.1:5000/atas/' + idAtas, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(novosDados)
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === 200) {
+                    mostrarAlerta('success', 'Ata editada com sucesso.')
+                } else {
+                    mostrarAlerta('danger', 'Erro ao editar Ata. Por favor, tente novamente.');
+                }
+            })
+            .catch(error => {
+                mostrarAlerta('danger', 'Erro ao se conectar ao servidor. Por favor, tente novamente mais tarde.')
+            })
+
+            window.location.reload()
+
+        
+    }
+
+   
+
+</script>
+
+<br><br>
+
+<br><br>
+<h2>Lista de Atas</h2>
+<div class="table-responsive">
+    <table class="table table-md table-bordered table-striped table-hover table-light" id="tabelaAtas">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Número</th>
+                <th>Tipo</th>
+                <th>Presidente Seção</th>
+                <th>Data</th>
+                <th>Membros Presentes</th>
+                <th>Texto</th>
+                <th>Opções</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for atas in dados %}
+            <tr id="linha{{atas['id']}}">
+                <td> {{ atas["id"] }}</td>
+                <td>{{ atas["numero"] }}</td>
+                <td>{{ atas["tipo"] }}</td>
+                <td>{{ atas["presidente_secao"] }}</td>
+                <td>{{ atas["data"] }}</td>
+                <td>{{ atas["membros_presentes"] }}</td>
+                <td>{{ atas["texto"] }}</td>
+                <td> 
+                    <button type="button" class="btn btn-danger btn-sm"
+                    onClick="removerAtas({{atas['id']}})">
+                    Excluir </button>
+                    
+                    <button type="button" id="editar{{atas['id']}}" class="btn btn-primary btn-sm" 
+                    onclick="editarAtas({{atas['id']}})">Editar</button>
+                </td>
+            
+            </tr>
+    
+           
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+<script type='text/javascript'>
+    $(document).ready(function () {
+        $('#tabelaAtas').DataTable();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base_adm.html' %}
+
+{% block title %}
+  Lista de Contatos
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block conteudo %}
+
+<h2>Lista de Contatos</h2>
+
+<table class="table table-md table-bordered table-striped table-hover table-light" id="tabelaContatos">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Mensagem</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contato in dados %}
+        <tr id="linha{{ contato['id'] }}">
+            <td>{{ contato["id"] }}</td>
+            <td>{{ contato["nome"] }}</td>
+            <td>{{ contato["email"] }}</td>
+            <td>{{ contato["mensagem"] }}</td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm"
+                    onClick="removerContato({{ contato['id'] }})">
+                    Excluir
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+
+function mostrarAlerta(tipo, mensagem) {
+        var alerta = document.createElement('div');
+        alerta.className = 'alert alert-' + tipo;
+        alerta.role = 'alert';
+        alerta.innerText = mensagem;
+
+        document.getElementById('alertas').appendChild(alerta);
+
+        setTimeout(function () {
+            alerta.remove();
+        }, 5000);
+
+    }
+
+
+    function removerContato(idContato) {
+        fetch('http://127.0.0.1:5000/contato/' + idContato, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.status === 200) {
+                document.getElementById("linha" + idContato).remove();
+                mostraAlerta('success','contato deletado com sucesso.'),201
+            } else {
+                mostraAlerta('danger','erro ao deletar contata. tente novamente, mais tarde.'),404
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao excluir contato:', error);
+        });
+    }
+
+    carregarDados();
+    
+    function carregarDados() {
+        fetch('http://127.0.0.1:5000/contato', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+        })
+        .catch(error => {
+            console.error('Erro ao enviar a requisição:', error);
+            mostrarAlerta('danger', 'Erro ao se conectar com servidor. Por favor, tente novamente mais tarde!');
+        });
+    }
+</script>
+{% endblock %}
